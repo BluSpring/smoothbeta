@@ -75,10 +75,12 @@ public class VertexFormat {
         }
 
         public int getIndexCount(int vertexCount) {
-            return switch (this) {
-                case LINE_STRIP, DEBUG_LINES, DEBUG_LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN -> vertexCount;
-                case LINES, QUADS -> vertexCount / 4 * 6;
-            };
+            switch (this) {
+                case LINE_STRIP: case DEBUG_LINES: case DEBUG_LINE_STRIP: case TRIANGLES: case TRIANGLE_STRIP: case TRIANGLE_FAN: return vertexCount;
+                case LINES: case QUADS: return vertexCount / 4 * 6;
+            }
+
+            throw new IllegalStateException();
         }
     }
 

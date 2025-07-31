@@ -91,18 +91,21 @@ abstract class WorldRendererMixin implements SmoothWorldRenderer {
         shader.addSampler("Sampler0", 0);
         shader.addSampler("Sampler1", 0);
 
-        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, smoothbeta_modelViewMatrix.clear());
-        shader.modelViewMat.set(smoothbeta_modelViewMatrix.position(0));
+        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, (FloatBuffer) smoothbeta_modelViewMatrix.clear());
+        shader.modelViewMat.set((FloatBuffer) smoothbeta_modelViewMatrix.position(0));
 
-        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, smoothbeta_projectionMatrix.clear());
-        shader.projectionMat.set(smoothbeta_projectionMatrix.position(0));
+        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, (FloatBuffer) smoothbeta_projectionMatrix.clear());
+        shader.projectionMat.set((FloatBuffer) smoothbeta_projectionMatrix.position(0));
 
-        shader.fogMode.set(switch (GL11.glGetInteger(GL11.GL_FOG_MODE)) {
-            case GL11.GL_EXP -> 0;
-            case GL11.GL_EXP2 -> 1;
-            case GL11.GL_LINEAR -> 2;
-            default -> throw new IllegalStateException("Unexpected value: " + GL11.glGetInteger(GL11.GL_FOG_MODE));
-        });
+        int fogMode;
+        switch (GL11.glGetInteger(GL11.GL_FOG_MODE)) {
+            case GL11.GL_EXP: fogMode = 0; break;
+            case GL11.GL_EXP2: fogMode = 1; break;
+            case GL11.GL_LINEAR: fogMode = 2; break;
+            default: throw new IllegalStateException("Unexpected value: " + GL11.glGetInteger(GL11.GL_FOG_MODE));
+        }
+
+        shader.fogMode.set(fogMode);
 
         shader.bind();
     }

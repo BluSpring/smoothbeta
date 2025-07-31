@@ -19,10 +19,26 @@ public class Shaders implements ClientModInitializer {
         applyShader(loadShaders());
     }
 
-    private record Application(
+    private static class Application {
+        private final Runnable clearCache;
+        private final Supplier<Shader> shaderFactory;
+
+        public Application(
             Runnable clearCache,
             Supplier<Shader> shaderFactory
-    ) {}
+        ) {
+            this.clearCache = clearCache;
+            this.shaderFactory = shaderFactory;
+        }
+
+        public Runnable clearCache() {
+            return clearCache;
+        }
+
+        public Supplier<Shader> shaderFactory() {
+            return shaderFactory;
+        }
+    }
 
     private static Application loadShaders() {
         //Profiler.push("cache_release");

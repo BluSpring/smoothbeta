@@ -163,31 +163,70 @@ public class GlUniform extends Uniform implements AutoCloseable {
 	private void uploadInts() {
 		this.intData.rewind();
 		switch (this.dataType) {
-			case INT1 -> GL20.glUniform1(this.location, this.intData);
-			case INT2 -> GL20.glUniform2(this.location, this.intData);
-			case INT3 -> GL20.glUniform3(this.location, this.intData);
-			case INT4 -> GL20.glUniform4(this.location, this.intData);
-			default -> SmoothBeta.LOGGER.warn("Uniform.upload called, but count value ({}) is  not in the range of 1 to 4. Ignoring.", this.count);
+			case INT1: {
+				GL20.glUniform1(this.location, this.intData);
+				break;
+			}
+			case INT2: {
+				GL20.glUniform2(this.location, this.intData);
+				break;
+			}
+			case INT3: {
+				GL20.glUniform3(this.location, this.intData);
+				break;
+			}
+			case INT4: {
+				GL20.glUniform4(this.location, this.intData);
+				break;
+			}
+			default: {
+				SmoothBeta.LOGGER.warn("Uniform.upload called, but count value ({}) is  not in the range of 1 to 4. Ignoring.", this.count);
+				break;
+			}
 		}
 	}
 
 	private void uploadFloats() {
 		this.floatData.rewind();
 		switch (this.dataType) {
-			case FLOAT1 -> GL20.glUniform1(this.location, this.floatData);
-			case FLOAT2 -> GL20.glUniform2(this.location, this.floatData);
-			case FLOAT3 -> GL20.glUniform3(this.location, this.floatData);
-			case FLOAT4 -> GL20.glUniform4(this.location, this.floatData);
-			default -> SmoothBeta.LOGGER.warn("Uniform.upload called, but count value ({}) is not in the range of 1 to 4. Ignoring.", this.count);
+			case FLOAT1: {
+				GL20.glUniform1(this.location, this.floatData);
+				break;
+			}
+			case FLOAT2: {
+				GL20.glUniform2(this.location, this.floatData);
+				break;
+			}
+			case FLOAT3: {
+				GL20.glUniform3(this.location, this.floatData);
+				break;
+			}
+			case FLOAT4: {
+				GL20.glUniform4(this.location, this.floatData);
+				break;
+			}
+			default: {
+				SmoothBeta.LOGGER.warn("Uniform.upload called, but count value ({}) is not in the range of 1 to 4. Ignoring.", this.count);
+				break;
+			}
 		}
 	}
 
 	private void uploadMatrix() {
 		this.floatData.clear();
 		switch (this.dataType) {
-			case MAT2X2 -> GL20.glUniformMatrix2(this.location, TRANSPOSE, this.floatData);
-			case MAT3X3 -> GL20.glUniformMatrix3(this.location, TRANSPOSE, this.floatData);
-			case MAT4X4 -> GL20.glUniformMatrix4(this.location, TRANSPOSE, this.floatData);
+			case MAT2X2: {
+				GL20.glUniformMatrix2(this.location, TRANSPOSE, this.floatData);
+				break;
+			}
+			case MAT3X3: {
+				GL20.glUniformMatrix3(this.location, TRANSPOSE, this.floatData);
+				break;
+			}
+			case MAT4X4: {
+				GL20.glUniformMatrix4(this.location, TRANSPOSE, this.floatData);
+				break;
+			}
 		}
 	}
 }

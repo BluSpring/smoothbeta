@@ -6,10 +6,10 @@ import net.fabricmc.api.Environment;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
 public class Program {
@@ -49,7 +49,8 @@ public class Program {
 	}
 
 	protected static int loadProgram(Type type, String name, InputStream stream, String domain, GLImportProcessor loader) throws IOException {
-		String string = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+		String string = reader.lines().collect(Collectors.joining("\n"));
 		if (string == null) throw new IOException("Could not load program " + type.getName());
 		else {
 			int i = GL20.glCreateShader(type.getGlType());

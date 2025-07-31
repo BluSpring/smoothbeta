@@ -30,11 +30,11 @@ public final class IndexBuffer {
     });
 
     public static IndexBuffer getSequentialBuffer(VertexFormat.DrawMode drawMode) {
-        return switch (drawMode) {
-            case QUADS -> sharedSequentialQuad;
-            case LINES -> sharedSequentialLines;
-            default -> sharedSequential;
-        };
+        switch (drawMode) {
+            case QUADS: return sharedSequentialQuad;
+            case LINES: return sharedSequentialLines;
+            default: return sharedSequential;
+        }
     }
 
     private final int sizeMultiplier;
@@ -86,11 +86,11 @@ public final class IndexBuffer {
     }
 
     private IntConsumer getIndexConsumer(ByteBuffer indicesBuffer) {
-        return switch (this.indexType) {
-            case BYTE -> index -> indicesBuffer.put((byte) index);
-            case SHORT -> index -> indicesBuffer.putShort((short) index);
-            default -> indicesBuffer::putInt;
-        };
+        switch (this.indexType) {
+            case BYTE: return index -> indicesBuffer.put((byte) index);
+            case SHORT: return index -> indicesBuffer.putShort((short) index);
+            default: return indicesBuffer::putInt;
+        }
     }
 
     public VertexFormat.IndexType getIndexType() {

@@ -2,7 +2,6 @@ package net.mine_diver.smoothbeta.util;
 
 import java.util.Iterator;
 
-@Deprecated(forRemoval = true)
 public class LinkedList<T> implements Iterable<LinkedList.Node<T>> {
     private Node<T> first;
     private Node<T> last;
@@ -109,7 +108,7 @@ public class LinkedList<T> implements Iterable<LinkedList.Node<T>> {
 
     @Override
     public Iterator<Node<T>> iterator() {
-        return new Iterator<>() {
+        return new Iterator() {
             Node<T> node = LinkedList.this.getFirst();
 
             public boolean hasNext() {
