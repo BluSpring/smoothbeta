@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "smoothbeta",
+  "id": "smoothrelease",
   "version": "${version}",
 
-  "name": "SmoothBeta",
-  "description": "Additional settings and optimizations for beta that allow for smoother experience!",
+  "name": "SmoothRelease",
+  "description": "Additional optimizations for MC 1.0.0 that allow for smoother experience!",
   "authors": [
-    "mine_diver"
+    "mine_diver",
+    "BluSpring"
   ],
   "contact": {
-    "homepage": "https://glass-repo.net/repo/mod/smoothbeta",
-    "sources": "https://github.com/mineLdiver/smoothbeta",
-    "issues": "https://github.com/mineLdiver/smoothbeta/issues"
+    "sources": "https://github.com/BluSpring/smoothbeta",
+    "issues": "https://github.com/BluSpring/smoothbeta/issues"
   },
 
   "license": "CC0-1.0",

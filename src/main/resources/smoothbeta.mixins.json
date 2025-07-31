@@ -5,8 +5,6 @@
     "compatibilityLevel": "JAVA_8",
     "client": [
         "client.MinecraftAccessor",
-        "client.MixinEntityRendererDispatcher",
-        "client.MixinTileEntityRenderDispatcher",
         "client.multidraw.ChunkRendererMixin",
         "client.multidraw.RenderListAccessor",
         "client.multidraw.TessellatorMixin",
@@ -16,7 +14,8 @@
     "mixins": [
         "client.MinecraftMixin",
         "client.deawt.MinecraftAppletMixin",
-        "client.deawt.MinecraftMixin"
+        "client.deawt.MinecraftMixin",
+        "client.vbos.BufferBuilderMixin"
     ],
     "injectors": {
         "defaultRequire": 1
