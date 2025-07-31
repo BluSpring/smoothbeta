@@ -1,14 +1,8 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 plugins {
 	id 'common-loom' version '1.9-SNAPSHOT'
 	id 'ploceus' version '1.9-SNAPSHOT'
 	id 'maven-publish'
-	id 'xyz.wagyourtail.jvmdowngrader' version '1.3.3'
-	id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
-
-jvmdg.downgradeTo = JavaVersion.VERSION_1_8
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -29,10 +23,6 @@ loom {
 
 ploceus {
 	clientOnlyMappings()
-}
-
-configurations {
-	shadowMC
 }
 
 repositories {
@@ -92,7 +82,7 @@ dependencies {
 
 	include(implementation("org.slf4j:slf4j-api:1.8.0-beta4"))
 	//implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.2'
-	//implementation(include("me.carleslc:Simple-Yaml:1.8.4") as Dependency)
+	implementation(include("me.carleslc:Simple-Yaml:1.8.4") as Dependency)
 }
 
 processResources {
@@ -108,22 +98,6 @@ tasks.withType(JavaCompile).configureEach {
 	// Loom also requires J17.
 	it.options.release = 17
 }
-
-shadowJar {
-	configurations = [project.configurations.shadowMC]
-}
-
-downgradeJar {
-	downgradeTo = JavaVersion.VERSION_1_8
-	inputFile = remapJar.archiveFile
-}
-
-tasks.named("remapJar", RemapJarTask) {
-	input = shadowJar.archiveFile
-}
-
-shadowJar.finalizedBy(remapJar)
-remapJar.finalizedBy(downgradeJar)
 
 remapJar {
 	targetNamespace = "clientOfficial"
