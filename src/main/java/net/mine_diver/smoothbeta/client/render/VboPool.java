@@ -1,10 +1,10 @@
 package net.mine_diver.smoothbeta.client.render;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
 import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.smoothbeta.client.render.gl.GlStateManager;
 import net.mine_diver.smoothbeta.mixin.client.MinecraftAccessor;
-import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.collection.LinkedList;
+import net.mine_diver.smoothbeta.util.LinkedList;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
@@ -24,7 +24,7 @@ public class VboPool implements AutoCloseable {
     private Pos compactPosLast = null;
     private int curBaseInstance;
 
-    private IntBuffer bufferIndirect = GlAllocationUtils.allocateIntBuffer(this.capacity * 5);
+    private IntBuffer bufferIndirect = MemoryTracker.createIntBuffer(this.capacity * 5);
     private final int vertexBytes;
     private VertexFormat.DrawMode drawMode = VertexFormat.DrawMode.QUADS;
 
@@ -176,7 +176,7 @@ public class VboPool implements AutoCloseable {
         GL15.glBindBuffer(GL31.GL_COPY_READ_BUFFER, 0);
         GL15.glBindBuffer(GL31.GL_COPY_WRITE_BUFFER, 0);
         GL15.glDeleteBuffers(this.vertexBufferId);
-        this.bufferIndirect = GlAllocationUtils.allocateIntBuffer(i * 5);
+        this.bufferIndirect = MemoryTracker.createIntBuffer(i * 5);
         this.vertexBufferId = l;
         this.capacity = i;
     }
@@ -209,13 +209,15 @@ public class VboPool implements AutoCloseable {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, this.vertexBufferId);
 
         GL20.glEnableVertexAttribArray(0);
-        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 28, 0);
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 32, 0); // vertex
         GL20.glEnableVertexAttribArray(1);
-        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 28, 12);
+        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 32, 12); // tex
         GL20.glEnableVertexAttribArray(2);
-        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 28, 20);
+        GL20.glVertexAttribPointer(2, 4, GL11.GL_UNSIGNED_BYTE, true, 32, 20); // color
         GL20.glEnableVertexAttribArray(3);
-        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 28, 24);
+        GL20.glVertexAttribPointer(3, 3, GL11.GL_BYTE, true, 32, 24); // normal
+        GL20.glEnableVertexAttribArray(4);
+        GL20.glVertexAttribPointer(4, 2, GL11.GL_SHORT, false, 32, 28); // lightmap
 
         IndexBuffer autostorageindexbuffer = IndexBuffer.getSequentialBuffer(this.drawMode);
         VertexFormat.IndexType indextype = autostorageindexbuffer.getIndexType();

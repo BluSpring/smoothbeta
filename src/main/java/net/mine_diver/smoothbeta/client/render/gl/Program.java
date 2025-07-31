@@ -3,12 +3,12 @@ package net.mine_diver.smoothbeta.client.render.gl;
 import com.google.common.collect.Maps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.client.texture.TextureUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
@@ -49,7 +49,7 @@ public class Program {
 	}
 
 	protected static int loadProgram(Type type, String name, InputStream stream, String domain, GLImportProcessor loader) throws IOException {
-		String string = TextureUtil.readResourceAsString(stream);
+		String string = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
 		if (string == null) throw new IOException("Could not load program " + type.getName());
 		else {
 			int i = GL20.glCreateShader(type.getGlType());

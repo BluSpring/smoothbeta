@@ -84,7 +84,8 @@ public class VertexFormatElement {
     public enum ComponentType {
         FLOAT(4, "Float"),
         UBYTE(1, "Unsigned Byte"),
-        BYTE(1, "Byte");
+        BYTE(1, "Byte"),
+        SHORT(2, "Short");
 
         private final int byteLength;
         private final String name;

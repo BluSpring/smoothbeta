@@ -9,6 +9,15 @@ pluginManagement {
             url = 'https://maven.glass-launcher.net/babric'
         }
         mavenCentral()
+        mavenLocal()
         gradlePluginPortal()
+        maven {
+            name = 'Ornithe Releases'
+            url = 'https://maven.ornithemc.net/releases'
+        }
+        maven {
+            name = 'Ornithe Snapshots'
+            url = 'https://maven.ornithemc.net/snapshots'
+        }
     }
 }

@@ -2,11 +2,10 @@ package net.mine_diver.smoothbeta.client.render.gl;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.mine_diver.smoothbeta.SmoothBeta;
 import org.lwjgl.opengl.GL20;
 
 import java.io.IOException;
-
-import static net.modificationstation.stationapi.impl.client.texture.StationRenderImpl.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class GlProgramManager {
@@ -31,8 +30,8 @@ public class GlProgramManager {
 		GL20.glLinkProgram(shader.getProgramRef());
 		int i = GL20.glGetProgrami(shader.getProgramRef(), GL20.GL_LINK_STATUS);
 		if (i == 0) {
-			LOGGER.warn("Error encountered when linking program containing VS {} and FS {}. Log output:", shader.getVertexShader().getName(), shader.getFragmentShader().getName());
-			LOGGER.warn(GL20.glGetProgramInfoLog(shader.getProgramRef(), 0x8000));
+			SmoothBeta.LOGGER.warn("Error encountered when linking program containing VS {} and FS {}. Log output:", shader.getVertexShader().getName(), shader.getFragmentShader().getName());
+			SmoothBeta.LOGGER.warn(GL20.glGetProgramInfoLog(shader.getProgramRef(), 0x8000));
 		}
 
 	}

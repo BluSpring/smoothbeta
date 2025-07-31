@@ -9,14 +9,10 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.mine_diver.smoothbeta.SmoothBeta;
 import net.mine_diver.smoothbeta.client.render.gl.*;
-import net.modificationstation.stationapi.api.client.texture.AbstractTexture;
-import net.modificationstation.stationapi.api.resource.Resource;
-import net.modificationstation.stationapi.api.resource.ResourceFactory;
-import net.modificationstation.stationapi.api.util.Identifier;
-import net.modificationstation.stationapi.api.util.JsonHelper;
-import net.modificationstation.stationapi.api.util.PathUtil;
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import java.io.BufferedReader;
@@ -26,12 +22,12 @@ import java.io.Reader;
 import java.util.*;
 
 import static net.mine_diver.smoothbeta.SmoothBeta.LOGGER;
-import static net.mine_diver.smoothbeta.SmoothBeta.NAMESPACE;
 
 @Environment(EnvType.CLIENT)
 public class Shader implements GlShader, AutoCloseable {
-	private static final String CORE_DIRECTORY = NAMESPACE + "/shaders/core/";
-	private static final String INCLUDE_DIRECTORY = NAMESPACE + "/shaders/include/";
+	private static final String ROOT_DIRECTORY = "/assets/minecraft/smoothbeta";
+	private static final String CORE_DIRECTORY = ROOT_DIRECTORY + "/shaders/core/";
+	private static final String INCLUDE_DIRECTORY = ROOT_DIRECTORY + "/shaders/include/";
 	private static int activeShaderId;
 	private final Map<String, Object> samplers = new HashMap<>();
 	private final List<String> samplerNames = new ArrayList<>();
@@ -49,10 +45,10 @@ public class Shader implements GlShader, AutoCloseable {
 			fogMode,
 			chunkOffset;
 
-	public Shader(ResourceFactory factory, String name, VertexFormat format) throws IOException {
+	public Shader(String name, VertexFormat format) throws IOException {
 		this.name = name;
-		Identifier identifier = Identifier.of(CORE_DIRECTORY + name + ".json");
-		try (BufferedReader reader = factory.openAsReader(identifier);){
+		//String identifier = CORE_DIRECTORY + name + ".json";
+		/*try (BufferedReader reader = factory.openAsReader(identifier);){
 			JsonArray jsonArray3;
 			JsonArray jsonArray2;
 			JsonObject jsonObject = JsonHelper.deserialize(reader);
@@ -127,55 +123,69 @@ public class Shader implements GlShader, AutoCloseable {
 			ShaderParseException shaderParseException4 = ShaderParseException.wrap(exception4);
 			shaderParseException4.addFaultyFile(identifier.path);
 			throw shaderParseException4;
+		}*/
+
+		this.samplers.put("Sampler0", null);
+		this.samplerNames.add("Sampler0");
+		this.samplers.put("Sampler1", null);
+		this.samplerNames.add("Sampler1");
+		this.blendState = new GlBlendState(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ADD);
+		this.vertexShader = Shader.loadProgram(Program.Type.VERTEX, name);
+		this.fragmentShader = Shader.loadProgram(Program.Type.FRAGMENT, name);
+		this.programId = GlProgramManager.createProgram();
+		int k = 0;
+		for (String string3 : format.getAttributeNames()) {
+			GlUniform.bindAttribLocation(this.programId, k, string3);
+			//loadedAttributeIds.add(k);
+			++k;
 		}
-		this.modelViewMat = this.getUniform("ModelViewMat");
-		this.projectionMat = this.getUniform("ProjMat");
-		this.fogMode = this.getUniform("FogMode");
-		this.chunkOffset = this.getUniform("ChunkOffset");
+
+		this.modelViewMat = new GlUniform("ModelViewMat", GlUniform.MAT4X4, 16);
+		this.modelViewMat.set(new float[]{
+			1f, 0f, 0f, 0f,
+			0f, 1f, 0f, 0f,
+			0f, 0f, 1f, 0f,
+			0f, 0f, 0f, 1f
+		});
+		this.uniforms.add(this.modelViewMat);
+		this.projectionMat = new GlUniform("ProjMat", GlUniform.MAT4X4, 16);
+		this.projectionMat.set(new float[]{
+			1f, 0f, 0f, 0f,
+			0f, 1f, 0f, 0f,
+			0f, 0f, 1f, 0f,
+			0f, 0f, 0f, 1f
+		});
+		this.uniforms.add(this.projectionMat);
+		this.fogMode = new GlUniform("FogMode", GlUniform.INT1, 1);
+		this.fogMode.set(0);
+		this.uniforms.add(this.fogMode);
+		this.chunkOffset = new GlUniform("ChunkOffset", GlUniform.FLOAT3, 3);
+		this.chunkOffset.set(0f, 0f, 0f);
+		this.uniforms.add(this.chunkOffset);
+
+		GlProgramManager.linkProgram(this);
+		this.loadReferences();
 	}
 
-	private static Program loadProgram(ResourceFactory factory, Program.Type type, String name) throws IOException {
+	private static Program loadProgram(Program.Type type, String name) throws IOException {
 		Program program2;
 		Program program = type.getProgramCache().get(name);
 		if (program == null) {
 			String string = CORE_DIRECTORY + name + type.getFileExtension();
-			Resource resource = factory.getResourceOrThrow(Identifier.of(string));
-			try (InputStream inputStream = resource.getInputStream()) {
-				final String string2 = PathUtil.getPosixFullPath(string);
-				program2 = Program.createFromResource(type, name, inputStream, resource.getResourcePackName(), new GLImportProcessor() {
+			try (InputStream inputStream = SmoothBeta.class.getResourceAsStream(string)) {
+				//final String string2 = PathUtil.getPosixFullPath(string);
+				program2 = Program.createFromResource(type, name, inputStream, "smoothrelease", new GLImportProcessor() {
 					private final Set<String> visitedImports = Sets.newHashSet();
 
 					@Override
 					public String loadImport(boolean inline, String name) {
 						String string;
-						name = PathUtil.normalizeToPosix((inline ? string2 : Shader.INCLUDE_DIRECTORY) + name);
 						if (!this.visitedImports.add(name)) return null;
-						Identifier identifier = Identifier.of(name);
-						BufferedReader reader;
-						try {
-							reader = factory.openAsReader(identifier);
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-						try {
-							string = IOUtils.toString(reader);
+						try (InputStream stream = SmoothBeta.class.getResourceAsStream(Shader.INCLUDE_DIRECTORY + name)) {
+							string = IOUtils.toString(stream);
 						} catch (Throwable throwable) {
-							try {
-								if (reader != null) try {
-									((Reader) reader).close();
-								} catch (Throwable throwable2) {
-									throwable.addSuppressed(throwable2);
-								}
-								throw throwable;
-							} catch (IOException iOException) {
-								LOGGER.error("Could not open GLSL import {}: {}", name, iOException.getMessage());
-								return "#error " + iOException.getMessage();
-							}
-						}
-						try {
-							((Reader) reader).close();
-						} catch (IOException e) {
-							throw new RuntimeException(e);
+							LOGGER.error("Could not open GLSL import {}: {}", name, throwable.getMessage());
+							return "#error " + throwable.getMessage();
 						}
 						return string;
 					}
@@ -183,50 +193,6 @@ public class Shader implements GlShader, AutoCloseable {
 			}
 		} else program2 = program;
 		return program2;
-	}
-
-	public static GlBlendState readBlendState(JsonObject json) {
-		if (json == null) return new GlBlendState();
-		else {
-			int i = 32774;
-			int j = 1;
-			int k = 0;
-			int l = 1;
-			int m = 0;
-			boolean bl = true;
-			boolean bl2 = false;
-			if (JsonHelper.hasString(json, "func")) {
-				i = GlBlendState.getFuncFromString(json.get("func").getAsString());
-				if (i != 32774) bl = false;
-			}
-
-			if (JsonHelper.hasString(json, "srcrgb")) {
-				j = GlBlendState.getComponentFromString(json.get("srcrgb").getAsString());
-				if (j != 1) bl = false;
-			}
-
-			if (JsonHelper.hasString(json, "dstrgb")) {
-				k = GlBlendState.getComponentFromString(json.get("dstrgb").getAsString());
-				if (k != 0) bl = false;
-			}
-
-			if (JsonHelper.hasString(json, "srcalpha")) {
-				l = GlBlendState.getComponentFromString(json.get("srcalpha").getAsString());
-				if (l != 1) bl = false;
-
-				bl2 = true;
-			}
-
-			if (JsonHelper.hasString(json, "dstalpha")) {
-				m = GlBlendState.getComponentFromString(json.get("dstalpha").getAsString());
-				if (m != 0) bl = false;
-
-				bl2 = true;
-			}
-
-			if (bl) return new GlBlendState();
-			else return bl2 ? new GlBlendState(j, k, l, m, i) : new GlBlendState(j, k, i);
-		}
 	}
 
 	public void close() {
@@ -268,8 +234,8 @@ public class Shader implements GlShader, AutoCloseable {
 				GlStateManager._enableTexture();
 				Object object = this.samplers.get(string);
 				int l = -1;
-				if (object instanceof AbstractTexture) l = ((AbstractTexture) object).getGlId();
-				else if (object instanceof Integer) l = (Integer) object;
+				//if (object instanceof AbstractTexture) l = ((AbstractTexture) object).getGlId();
+				if (object instanceof Integer) l = (Integer) object;
 
 				if (l != -1) GlStateManager._bindTexture(l);
 			}
@@ -317,20 +283,11 @@ public class Shader implements GlShader, AutoCloseable {
 
 	}
 
-	private void readSampler(JsonElement json) {
-		JsonObject jsonObject = JsonHelper.asObject(json, "sampler");
-		String string = JsonHelper.getString(jsonObject, "name");
-		if (!JsonHelper.hasString(jsonObject, "file")) {
-			this.samplers.put(string, null);
-			this.samplerNames.add(string);
-		} else this.samplerNames.add(string);
-	}
-
 	public void addSampler(String name, Object sampler) {
 		this.samplers.put(name, sampler);
 	}
 
-	private void addUniform(JsonElement json) throws ShaderParseException {
+	/*private void addUniform(JsonElement json) throws ShaderParseException {
 		JsonObject jsonObject = JsonHelper.asObject(json, "uniform");
 		String string = JsonHelper.getString(jsonObject, "name");
 		int i = GlUniform.getTypeIndex(JsonHelper.getString(jsonObject, "type"));
@@ -367,7 +324,7 @@ public class Shader implements GlShader, AutoCloseable {
 
 			this.uniforms.add(glUniform);
 		}
-	}
+	}*/
 
 	public Program getVertexShader() {
 		return this.vertexShader;

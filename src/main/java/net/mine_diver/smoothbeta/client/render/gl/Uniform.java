@@ -2,7 +2,7 @@ package net.mine_diver.smoothbeta.client.render.gl;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.util.math.Vec3f;
+import org.lwjgl.util.vector.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public class Uniform {
@@ -16,5 +16,5 @@ public class Uniform {
 
 	public void set(float[] values) {}
 
-	public void set(Vec3f vector) {}
+	public void set(Vector3f vector) {}
 }

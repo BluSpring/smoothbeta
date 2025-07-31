@@ -1,26 +1,24 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "net.mine_diver.smoothbeta.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "client": [
-    "client.MinecraftAccessor",
-    "client.MixinEntityRendererDispatcher",
-    "client.MixinTileEntityRenderDispatcher",
-    "client.multidraw.ChunkRendererMixin",
-    "client.multidraw.RenderListAccessor",
-    "client.multidraw.TessellatorMixin",
-    "client.multidraw.WorldRendererMixin",
-    "client.multidraw.compat.arsenic.ArsenicTessellatorMixin",
-    "client.multidraw.compat.stationrendererapi.StationTessellatorImplMixin",
-    "client.multidraw.nop.ChunkRendererMixin"
-  ],
-  "mixins": [
-    "MixinServerChunkCache",
-    "entity.MixinEntityRegistry",
-    "entity.compat.stationentities.EntityRegisterEventMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
+    "required": true,
+    "minVersion": "0.8",
+    "package": "net.mine_diver.smoothbeta.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "client": [
+        "client.MinecraftAccessor",
+        "client.MixinEntityRendererDispatcher",
+        "client.MixinTileEntityRenderDispatcher",
+        "client.multidraw.ChunkRendererMixin",
+        "client.multidraw.RenderListAccessor",
+        "client.multidraw.TessellatorMixin",
+        "client.multidraw.WorldRendererMixin",
+        "client.multidraw.nop.ChunkRendererMixin"
+    ],
+    "mixins": [
+        "client.MinecraftMixin",
+        "client.deawt.MinecraftAppletMixin",
+        "client.deawt.MinecraftMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
   }
 }

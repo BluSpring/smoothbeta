@@ -1,8 +1,8 @@
 package net.mine_diver.smoothbeta.mixin.client.multidraw;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.mine_diver.smoothbeta.client.render.SmoothChunkRenderer;
 import net.mine_diver.smoothbeta.client.render.SmoothTessellator;
-import net.minecraft.client.render.Tessellator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -11,14 +11,16 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.nio.ByteBuffer;
 
-@Mixin(Tessellator.class)
+@Mixin(BufferBuilder.class)
 abstract class TessellatorMixin implements SmoothTessellator {
-    @Shadow protected abstract void reset();
+    @Shadow protected abstract void clear();
 
     @Shadow private ByteBuffer byteBuffer;
+    @Shadow private int index;
     @Unique
     private boolean smoothbeta_renderingTerrain;
     @Unique
@@ -44,7 +46,7 @@ abstract class TessellatorMixin implements SmoothTessellator {
     }
 
     @Inject(
-            method = "draw",
+            method = "end",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/nio/ByteBuffer;limit(I)Ljava/nio/Buffer;",
@@ -52,29 +54,19 @@ abstract class TessellatorMixin implements SmoothTessellator {
             ),
             cancellable = true
     )
-    private void smoothbeta_uploadTerrain(CallbackInfo ci) {
+    private void smoothbeta_uploadTerrain(CallbackInfoReturnable<Integer> cir) {
         if (!smoothbeta_renderingTerrain) return;
         smoothbeta_chunkRenderer.smoothbeta_getCurrentBuffer().upload(byteBuffer);
-        reset();
-        ci.cancel();
+        int value = this.index * 4;
+        clear();
+        cir.setReturnValue(value);
     }
 
     @ModifyConstant(
             method = "vertex(DDD)V",
-            constant = @Constant(intValue = 7)
+            constant = @Constant(intValue = 7, ordinal = 0)
     )
     private int smoothbeta_prohibitExtraVertices(int constant) {
         return smoothbeta_renderingTerrain ? -1 : constant;
-    }
-
-    @ModifyConstant(
-            method = "vertex(DDD)V",
-            constant = @Constant(
-                    intValue = 8,
-                    ordinal = 2
-            )
-    )
-    private int smoothbeta_compactVertices(int constant) {
-        return smoothbeta_renderingTerrain ? 7 : 8;
     }
 }

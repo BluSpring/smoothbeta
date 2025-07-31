@@ -1,14 +1,14 @@
 package net.mine_diver.smoothbeta.mixin.client.multidraw.nop;
 
-import net.minecraft.client.render.chunk.ChunkBuilder;
+import net.minecraft.client.render.world.RenderChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ChunkBuilder.class)
+@Mixin(RenderChunk.class)
 public class ChunkRendererMixin {
     @Redirect(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glNewList(II)V",
@@ -18,7 +18,7 @@ public class ChunkRendererMixin {
     private void smoothbeta_nop_GL11_glNewList(int list, int mode) {}
 
     @Redirect(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glEndList()V",
@@ -29,8 +29,8 @@ public class ChunkRendererMixin {
 
     @Redirect(
             method = {
-                    "translateToRenderPosition",
-                    "rebuild"
+                    "glTranslatef",
+                    "compile"
             },
             at = @At(
                     value = "INVOKE",
@@ -41,7 +41,7 @@ public class ChunkRendererMixin {
     private void smoothbeta_nop_GL11_glTranslatef(float x, float y, float z) {}
 
     @Redirect(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V",
@@ -51,7 +51,7 @@ public class ChunkRendererMixin {
     private void smoothbeta_nop_GL11_glPushMatrix() {}
 
     @Redirect(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glScalef(FFF)V",
@@ -61,7 +61,7 @@ public class ChunkRendererMixin {
     private void smoothbeta_nop_GL11_glScalef(float x, float y, float z) {}
 
     @Redirect(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glPopMatrix()V",

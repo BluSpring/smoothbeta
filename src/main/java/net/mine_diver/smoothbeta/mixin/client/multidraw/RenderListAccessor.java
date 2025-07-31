@@ -1,34 +1,34 @@
 package net.mine_diver.smoothbeta.mixin.client.multidraw;
 
+import net.minecraft.client.render.world.RenderChunkStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.nio.IntBuffer;
-import net.minecraft.client.render.world.ChunkRenderer;
 
-@Mixin(ChunkRenderer.class)
+@Mixin(RenderChunkStorage.class)
 public interface RenderListAccessor {
-    @Accessor("glListBuffer")
+    @Accessor("glList")
     void smoothbeta_setGlListBuffer(IntBuffer buffer);
 
-    @Accessor("initialized")
+    @Accessor("renderingLeft")
     boolean smoothbeta_getInitialized();
 
-    @Accessor("x")
+    @Accessor("regionX")
     int smoothbeta_getX();
 
-    @Accessor("y")
+    @Accessor("regionY")
     int smoothbeta_getY();
 
-    @Accessor("z")
+    @Accessor("regionZ")
     int smoothbeta_getZ();
 
-    @Accessor("offsetX")
-    float smoothbeta_getOffsetX();
+    @Accessor("cameraX")
+    double smoothbeta_getOffsetX();
 
-    @Accessor("offsetY")
-    float smoothbeta_getOffsetY();
+    @Accessor("cameraY")
+    double smoothbeta_getOffsetY();
 
-    @Accessor("offsetZ")
-    float smoothbeta_getOffsetZ();
+    @Accessor("cameraZ")
+    double smoothbeta_getOffsetZ();
 }

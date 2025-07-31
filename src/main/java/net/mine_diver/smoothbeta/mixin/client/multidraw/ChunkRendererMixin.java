@@ -1,5 +1,7 @@
 package net.mine_diver.smoothbeta.mixin.client.multidraw;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.mine_diver.smoothbeta.client.render.SmoothChunkRenderer;
 import net.mine_diver.smoothbeta.client.render.SmoothTessellator;
@@ -8,9 +10,7 @@ import net.mine_diver.smoothbeta.client.render.VboPool;
 import net.mine_diver.smoothbeta.client.render.gl.VertexBuffer;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.render.chunk.ChunkBuilder;
+import net.minecraft.client.render.world.RenderChunk;
 import net.minecraft.world.WorldRegion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,14 +22,14 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.HashSet;
 
-@Mixin(ChunkBuilder.class)
+@Mixin(RenderChunk.class)
 class ChunkRendererMixin implements SmoothChunkRenderer {
-    @Shadow private static Tessellator tessellator;
+    @Shadow private static BufferBuilder BUFFER_BUILDER;
 
-    @Shadow public boolean[] renderLayerEmpty;
-    @Shadow public int renderX;
-    @Shadow public int renderY;
-    @Shadow public int renderZ;
+    @Shadow public boolean[] blocks;
+    @Shadow public int regionX;
+    @Shadow public int regionY;
+    @Shadow public int regionZ;
     @Unique
     private VertexBuffer[] smoothbeta_buffers;
     @Unique
@@ -52,7 +52,7 @@ class ChunkRendererMixin implements SmoothChunkRenderer {
             at = @At("RETURN")
     )
     private void smoothbeta_init(CallbackInfo ci) {
-        smoothbeta_buffers = new VertexBuffer[renderLayerEmpty.length];
+        smoothbeta_buffers = new VertexBuffer[blocks.length];
         //noinspection deprecation
         VboPool pool = ((SmoothWorldRenderer) ((Minecraft) FabricLoader.getInstance().getGameInstance()).worldRenderer).smoothbeta_getTerrainVboPool();
         for (int i = 0; i < smoothbeta_buffers.length; i++)
@@ -60,44 +60,43 @@ class ChunkRendererMixin implements SmoothChunkRenderer {
     }
 
     @Inject(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/Tessellator;startQuads()V"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
+                    target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;start()V"
+            )
     )
     private void smoothbeta_startRenderingTerrain(
             CallbackInfo ci,
-            int var1, int var2, int var3, int var4, int var5, int var6, HashSet<BlockEntity> var7, int var8, WorldRegion var9, BlockRenderManager var10, int var11
+            @Local(index = 11) int renderLayer
     ) {
-        smoothbeta_currentBufferIndex = var11;
-        ((SmoothTessellator) tessellator).smoothbeta_startRenderingTerrain(this);
+        smoothbeta_currentBufferIndex = renderLayer;
+        ((SmoothTessellator) BUFFER_BUILDER).smoothbeta_startRenderingTerrain(this);
     }
 
     @Inject(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/Tessellator;translate(DDD)V",
+                    target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;offset(DDD)V",
                     shift = At.Shift.AFTER,
                     ordinal = 0
             )
     )
     private void smoothbeta_offsetBufferData(CallbackInfo ci) {
-        tessellator.translate(this.renderX, this.renderY, this.renderZ);
+        BUFFER_BUILDER.addOffset(this.regionX, this.regionY, this.regionZ);
     }
 
     @Inject(
-            method = "rebuild",
+            method = "compile",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/Tessellator;draw()V",
+                    target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;end()I",
                     shift = At.Shift.AFTER
             )
     )
     private void smoothbeta_stopRenderingTerrain(CallbackInfo ci) {
         smoothbeta_currentBufferIndex = -1;
-        ((SmoothTessellator) tessellator).smoothbeta_stopRenderingTerrain();
+        ((SmoothTessellator) BUFFER_BUILDER).smoothbeta_stopRenderingTerrain();
     }
 }

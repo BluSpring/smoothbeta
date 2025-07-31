@@ -1,10 +1,12 @@
 package net.mine_diver.smoothbeta.client.render.gl;
 
 import com.google.common.base.Charsets;
+import com.mojang.blaze3d.platform.MemoryTracker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.GlAllocationUtils;
-import net.modificationstation.stationapi.api.util.Util;
+import net.mine_diver.smoothbeta.SmoothBeta;
+import net.mine_diver.smoothbeta.mixin.client.MinecraftAccessor;
+import net.minecraft.util.OS;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class GlStateManager {
-    private static final boolean ON_LINUX = Util.getOperatingSystem() == Util.OperatingSystem.LINUX;
+    private static final boolean ON_LINUX = MinecraftAccessor.callGetOs() == OS.LINUX;
     private static final BlendFuncState BLEND = new BlendFuncState();
     private static int activeTexture;
     private static final Texture2DState[] TEXTURES = IntStream.range(0, 12).mapToObj(i -> new Texture2DState()).toArray(Texture2DState[]::new);
@@ -32,7 +34,7 @@ public class GlStateManager {
             stringBuilder.append(string);
         }
         byte[] bs = stringBuilder.toString().getBytes(Charsets.UTF_8);
-        ByteBuffer byteBuffer = GlAllocationUtils.allocateByteBuffer(bs.length + 1);
+        ByteBuffer byteBuffer = MemoryTracker.createByteBuffer(bs.length + 1);
         byteBuffer.put(bs);
         byteBuffer.put((byte)0);
         byteBuffer.flip();

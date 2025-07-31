@@ -1,6 +1,7 @@
 #version 150 compatibility
 
 #moj_import <fog.glsl>
+#moj_import <light.glsl>
 
 uniform sampler2D Sampler0;
 

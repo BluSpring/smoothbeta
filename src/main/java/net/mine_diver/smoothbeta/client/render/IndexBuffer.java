@@ -2,7 +2,6 @@ package net.mine_diver.smoothbeta.client.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL15;
 
 import java.nio.ByteBuffer;
@@ -61,12 +60,20 @@ public final class IndexBuffer {
         this.grow(newSize);
     }
 
+    public static int ceilDiv(int a, int b) {
+        return -Math.floorDiv(-a, b);
+    }
+
+    public static int roundUpToMultiple(int value, int divisor) {
+        return ceilDiv(value, divisor) * divisor;
+    }
+
     private void grow(int newSize) {
         if (this.isSizeLessThanOrEqual(newSize)) return;
-        newSize = MathHelper.roundUpToMultiple(newSize * 2, this.increment);
+        newSize = roundUpToMultiple(newSize * 2, this.increment);
         LOGGER.debug("Growing IndexBuffer: Old limit {}, new limit {}.", this.size, newSize);
         VertexFormat.IndexType indexType = VertexFormat.IndexType.smallestFor(newSize);
-        int i = MathHelper.roundUpToMultiple(newSize * indexType.size, 4);
+        int i = roundUpToMultiple(newSize * indexType.size, 4);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, i, GL15.GL_DYNAMIC_DRAW);
         ByteBuffer byteBuffer = GL15.glMapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_WRITE_ONLY, null);
         if (byteBuffer == null) throw new RuntimeException("Failed to map GL buffer");

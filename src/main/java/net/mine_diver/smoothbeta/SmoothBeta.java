@@ -1,14 +1,14 @@
 package net.mine_diver.smoothbeta;
 
-import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
-import net.modificationstation.stationapi.api.mod.entrypoint.EventBusPolicy;
-import net.modificationstation.stationapi.api.util.Namespace;
-import org.apache.logging.log4j.Logger;
+import net.fabricmc.api.ModInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Entrypoint(eventBus = @EventBusPolicy(registerStatic = false, registerInstance = false))
-public class SmoothBeta {
-    @SuppressWarnings("UnstableApiUsage")
-    public static final Namespace NAMESPACE = Namespace.resolve();
+public class SmoothBeta implements ModInitializer {
+    public static final Logger LOGGER = LoggerFactory.getLogger("SmoothBeta");
 
-    public static final Logger LOGGER = NAMESPACE.getLogger();
+    @Override
+    public void onInitialize() {
+
+    }
 }
