@@ -16,6 +16,9 @@ group = project.maven_group
 loom {
 	customMinecraftManifest.set("https://raw.githubusercontent.com/MCPHackers/BetterJSONs/main/jsons/1.0.0.json")
 	clientOnlyMinecraftJar()
+	mixin {
+		useLegacyMixinAp = false // must be set to forcefully remap to official
+	}
 }
 
 ploceus {
@@ -94,6 +97,10 @@ tasks.withType(JavaCompile).configureEach {
 	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
 	// Loom also requires J17.
 	it.options.release = 17
+}
+
+remapJar {
+	targetNamespace = "clientOfficial"
 }
 
 java {
